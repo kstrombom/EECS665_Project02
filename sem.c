@@ -18,7 +18,8 @@ int numblabels = 0;                     /* toal backpatch labels in file */
  */
 void backpatch(struct sem_rec *p, int k)
 {
-   fprintf(stderr, "sem: backpatch not implemented\n");
+   printf( "B%d = L%d\n", p->s_place, k);
+   p->s_place = k;
 }
 
 /*
@@ -210,7 +211,10 @@ void dodo(int m1, int m2, struct sem_rec *e, int m3)
 void dofor(int m1, struct sem_rec *e2, int m2, struct sem_rec *n1,
            int m3, struct sem_rec *n2, int m4)
 {
-   fprintf(stderr, "sem: dofor not implemented\n");
+  backpatch(e2->back.s_true, m3);
+  backpatch(e2->s_false, m4);
+  backpatch(n1, m1);
+  backpatch(n2, m2);
 }
 
 /*
@@ -226,7 +230,8 @@ void dogoto(char *id)
  */
 void doif(struct sem_rec *e, int m1, int m2)
 {
-   fprintf(stderr, "sem: doif not implemented\n");
+  backpatch(e->back.s_true,m1);
+  backpatch(e->s_false, m2);
 }
 
 /*
@@ -485,7 +490,6 @@ struct sem_rec *opb(char *op, struct sem_rec *x, struct sem_rec *y)
  */
 struct sem_rec *rel(char *op, struct sem_rec *x, struct sem_rec *y)
 {
-
   struct sem_rec *lCasty = y;
   struct sem_rec *lCastx = x;
 
@@ -508,8 +512,12 @@ struct sem_rec *rel(char *op, struct sem_rec *x, struct sem_rec *y)
   struct sem_rec * lNewSemRec = gen(op, lCastx, lCasty, lCasty->s_mode);
   numblabels++;
   printf( "bt t%d B%d\n", lNewSemRec->s_place, numblabels );
+  lNewSemRec->back.s_true = node( numblabels,-1, NULL, NULL );
+
   numblabels++;
   printf( "br B%d\n", numblabels);
+  lNewSemRec->s_false = node( numblabels,-1, NULL, NULL );
+
 
   return lNewSemRec;
 }
@@ -567,7 +575,7 @@ struct sem_rec *set(char *op, struct sem_rec *x, struct sem_rec *y)
  */
 void startloopscope()
 {
-   fprintf(stderr, "sem: startloopscope not implemented\n");
+   enterblock();
 }
 
 /*
